@@ -1,3 +1,5 @@
+import os
+from dotenv import find_dotenv, load_dotenv
 from typing import List
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,6 +8,8 @@ import redis
 import requests
 import json
 import logging
+
+load_dotenv(find_dotenv())
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -60,7 +64,7 @@ async def service2(conversation_id: str, conversation: Conversation):
     )
 
     try:
-        service3 = os.getenv("SERVICE3", "http://service3")
+        service3 = os.environ.get("SERVICE3", "http://service3")
         response = requests.post(
             f"{service3}/{conversation_id}",
             json=existing_conversation,

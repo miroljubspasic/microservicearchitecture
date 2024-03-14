@@ -22,13 +22,13 @@ ROLE_CLASS_MAP = {"assistant": AIMessage, "user": HumanMessage, "system": System
 
 load_dotenv(find_dotenv())
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-db_user = os.getenv("DB_USER", "admin")
-db_password = os.getenv("DB_PASSWORD", "admin")
-db_host = os.getenv("DB_HOST", "postres")
-db_port = os.getenv("DB_PORT", 5432)
-db_name = os.getenv("DB_NAME", "vectordb")
+db_user = os.environ.get("DB_USER", "admin")
+db_password = os.environ.get("DB_PASSWORD", "admin")
+db_host = os.environ.get("DB_HOST", "postres")
+db_port = os.environ.get("DB_PORT", 5432)
+db_name = os.environ.get("DB_NAME", "vectordb")
 
 CONNECTION_STRING = (
     f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
