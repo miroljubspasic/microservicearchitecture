@@ -1,0 +1,75 @@
+version: "3"
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "${FWD_FRONTEND_PORT:-3000}:3000"
+    restart: unless-stopped
+    networks:
+      - langchain
+
+  postgres:
+    image: ankane/pgvector:latest
+    container_name: pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME:-admin}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-admin}
+      POSTGRES_DB: ${DATABASE_NAME:-vectordb}
+      PGDATA: /data/postgres
+    ports:
+      - "${FWD_DATABASE_PORT:-5434}:5432"
+    networks:
+      - langchain
+
+  service2:
+    build:
+      context: ./service2
+      dockerfile: Dockerfile
+    container_name: service2
+    ports:
+      - "${FWD_SERVICE1_PORT:-8002}:80"
+    restart: unless-stopped
+    networks:
+      - langchain
+
+  service3:
+    build:
+      context: ./service3
+      dockerfile: Dockerfile
+    container_name: service3
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-sk-******}
+    ports:
+      - "${FWD_SERVICE2_PORT:-8003}:80"
+    restart: unless-stopped
+    networks:
+      - langchain
+
+  redis:
+    image: redis:7.0-alpine
+    container_name: redis
+    restart: unless-stopped
+    environment:
+      - REDIS_PORT_NUMBER=6379
+    ports:
+      - "${FWD_REDIS_PORT:-6389}:6379"
+    networks:
+      - langchain
+
+  ingest:
+    build:
+      context: ./ingest
+      dockerfile: Dockerfile
+    container_name: ingest
+    networks:
+      - langchain
+
+networks:
+  langchain:
+    name: langchain
+    driver: bridge
