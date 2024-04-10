@@ -92,16 +92,29 @@ app.add_middleware(
 )
 
 
+# Creating new application instance
+app = FastAPI()
+
+# This is a decorator that describes the route (/{conversation_id}) and the HTTP method (POST)
 @app.post("/{conversation_id}")
+# Definition of asynchronous function service3 that takes two parameters:
+# conversation_id (type str) and conversation (type Conversation)
 async def service3(conversation_id: str, conversation: Conversation):
+    # Get the content of the last message in the conversation
     query = conversation.conversation[-1].content
 
+    # Get the documents relevant to the query using the retriever module
     docs = retriever.get_relevant_documents(query=query)
+    # Format the retrieved documents for further processing
     docs = format_docs(docs=docs)
 
+    # Prepare a system message prompt using the formatted documents
     prompt = system_message_prompt.format(context=docs)
+    # Create a list of messages by concatenating the prompt and the content of the conversation
     messages = [prompt] + create_messages(conversation=conversation.conversation)
 
+    # Invoke a chat function with the prepared messages
     result = chat.invoke(messages)
 
+    # Return a dictionary with the conversation_id and the content of the result
     return {"id": conversation_id, "reply": result.content}
